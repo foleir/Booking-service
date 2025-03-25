@@ -1,0 +1,65 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    height: 100vh;
+    background-color: #f4f4f4;
+    font-family: Arial, sans-serif;
+    margin: 0;
+}
+
+/* Заголовок */
+.header-title {
+    font-size: 24px;
+    margin-top: 40px;
+    text-align: center;
+}
+
+.header-title b {
+    font-weight: bold;
+}
+
+/* Кнопка бронирования (ниже заголовка) */
+.main-button {
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+    font-size: 24px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 15px; /* Скругленные края */
+    cursor: pointer;
+    transition: 0.3s;
+    margin-top: 40px; /* Опустили ниже */
+}
+
+.main-button:hover {
+    background-color: #0056b3;
+}
+
+/* Кнопка профиля (увеличенная иконка пользователя) */
+.profile-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgb(16, 15, 15);
+    border: none;
+    border-radius: 50%; /* Круглая кнопка */
+    width: 70px; /* Увеличена */
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.2);
+    overflow: hidden; /* Чтобы изображение не выходило за границы */
+}
+
+.profile-button img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Подгонка под размер */
+    border-radius: 50%; /* Делаем аватар круглым */
+}
