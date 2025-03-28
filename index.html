@@ -4,20 +4,67 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Главная страница</title>
-    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles.css?v=1.9">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
-
-    <!-- Заголовок -->
-    <h1 class="header-title">Сервис бронирования оборудования <b>"СНЯК"</b></h1>
-
-    <!-- Кнопка бронирования -->
-    <button class="main-button" onclick="location.href='booking.html'">Забронировать оборудование</button>
-
-    <!-- Кнопка личного кабинета (увеличенная иконка) -->
+    <!-- Кнопка профиля -->
     <button class="profile-button" onclick="location.href='profile.html'">
         <img src="https://mobile-comp.com/images/user.png" alt="Личный кабинет">
     </button>
 
+    <!-- Основной контент -->
+    <div class="page-content">
+        <div class="main-container">
+            <h1 class="header-title">Сервис бронирования оборудования <b>"СНЯК"</b></h1>
+            <button class="main-button" onclick="location.href='categories.html'">Забронировать оборудование</button>
+            
+            <!-- Dashboard занятости -->
+            <div class="dashboard">
+                <h2 class="section-title">Dashboard - Занятость оборудования</h2>
+                <div class = "table-container">
+                    <table class="booking-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                            <tr>
+                                <td></td>
+                                <td></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            
+            <!-- История бронирования -->
+            <section class="history-section">
+                <h2 class="section-title">История бронирования</h2>
+                <div class="history-list">
+                    <div class="history-item">
+                        <div class="item-date"></div>
+                        <div class="item-details">
+                            <span class="item-name"></span>
+                            <span class="item-status returned"></span>
+                        </div>
+                    </div>
+                    <div class="history-item">
+                        <div class="item-date"></div>
+                        <div class="item-details">
+                            <span class="item-name"></span>
+                            <span class="item-status canceled"></span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
 </body>
 </html>
+
