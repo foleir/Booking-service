@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Регистрация</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <a href="index.html" class="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </a>
+    
+    <div class="registration-container">
+        <h2>Регистрация</h2>
+        <form name="registrationForm" oninput="checkForm()" action="personal_account.html" method="post">
+            <input type="text" name="firstname" placeholder="Имя" required>
+            <div id="firstnameError" class="error-message">Это поле обязательно для заполнения</div>
+
+            <input type="text" name="lastname" placeholder="Фамилия" required>
+            <div id="lastnameError" class="error-message">Это поле обязательно для заполнения</div>
+
+            <input type="text" name="username" placeholder="Логин" required>
+            <div id="usernameError" class="error-message">Это поле обязательно для заполнения</div>
+
+            <div class="password-input">
+                <input type="password" name="password" placeholder="Пароль" required>
+                <i class="fas fa-eye password-toggle"></i>
+            </div>
+            <div id="passwordError" class="error-message">Это поле обязательно для заполнения</div>
+
+            <div class="password-input">
+                <input type="password" name="confirm_password" placeholder="Повторите пароль" required>
+                <i class="fas fa-eye password-toggle"></i>
+            </div>
+            <div id="confirmPasswordError" class="error-message">Пароли должны совпадать</div>
+
+            <p><strong>Вы относитесь к категории:</strong></p>
+            <div class="radio-group">
+                <label><input type="radio" name="role" value="student" required> Студент</label>
+                <label><input type="radio" name="role" value="teacher"> Преподаватель</label>
+                <label><input type="radio" name="role" value="unknown"> ХЗ</label>
+            </div>
+            <div id="roleError" class="error-message">Выберите одну категорию</div>
+
+            <button type="submit" id="submitBtn" class="button-link" disabled>Зарегистрироваться</button>
+        </form>
+        <p><strong>Уже зарегистрированы?</strong> <a href="login.html">Войти</a></p>
+    </div>
+
+    <script>
+        function checkForm() {
+            var firstname = document.forms["registrationForm"]["firstname"];
+            var lastname = document.forms["registrationForm"]["lastname"];
+            var username = document.forms["registrationForm"]["username"];
+            var password = document.forms["registrationForm"]["password"];
+            var confirmPassword = document.forms["registrationForm"]["confirm_password"];
+            var role = document.forms["registrationForm"]["role"];
+
+            var valid = true;
+
+            if (firstname.value == "") {
+                document.getElementById("firstnameError").style.display = "block";
+                firstname.classList.add("error");
+                valid = false;
+            } else {
+                document.getElementById("firstnameError").style.display = "none";
+                firstname.classList.remove("error");
+            }
+
+            if (lastname.value == "") {
+                document.getElementById("lastnameError").style.display = "block";
+                lastname.classList.add("error");
+                valid = false;
+            } else {
+                document.getElementById("lastnameError").style.display = "none";
+                lastname.classList.remove("error");
+            }
+
+            if (username.value == "") {
+                document.getElementById("usernameError").style.display = "block";
+                username.classList.add("error");
+                valid = false;
+            } else {
+                document.getElementById("usernameError").style.display = "none";
+                username.classList.remove("error");
+            }
+
+            if (password.value == "") {
+                document.getElementById("passwordError").style.display = "block";
+                password.classList.add("error");
+                valid = false;
+            } else {
+                document.getElementById("passwordError").style.display = "none";
+                password.classList.remove("error");
+            }
+
+            if (confirmPassword.value == "" || confirmPassword.value !== password.value) {
+                document.getElementById("confirmPasswordError").style.display = "block";
+                confirmPassword.classList.add("error");
+                valid = false;
+            } else {
+                document.getElementById("confirmPasswordError").style.display = "none";
+                confirmPassword.classList.remove("error");
+            }
+
+            if (!role.value) {
+                document.getElementById("roleError").style.display = "block";
+                valid = false;
+            } else {
+                document.getElementById("roleError").style.display = "none";
+            }
+
+            document.getElementById("submitBtn").disabled = !valid;
+            if (valid) {
+                document.getElementById("submitBtn").classList.add("active");
+            } else {
+                document.getElementById("submitBtn").classList.remove("active");
+            }
+        }
+
+        // Функция переключения видимости пароля
+        document.querySelectorAll('.password-toggle').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const input = this.previousElementSibling;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    this.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    this.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+ 
