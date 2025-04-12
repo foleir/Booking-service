@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body class="profile-page">
+    <div class="dashboard-container">
+        <!-- Левое меню -->
+        <div class="sidebar">
+            <h2>Личный кабинет</h2>
+            <ul>
+                <li><a href="#" id="profile-btn" class="active">Профиль</a></li>
+                <li><a href="#" id="equipment-btn">Мое оборудование</a></li>
+                <li><a href="#" id="favorites-btn">Избранное</a></li>
+            </ul>
+            <a href="#" class="logout-btn" id="logout-btn">Выход</a>
+        </div>
+
+        <!-- Основное содержимое -->
+        <div class="content">
+            <!-- Профиль -->
+            <div id="profile" class="tab-content active">
+                <h3 class="profile-title">Редактирование профиля</h3>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="username"><strong>Логин:</strong></label>
+                        <input type="text" id="username" name="username" value="user123" required>
+                    </div>
+                
+                    <div class="form-group password-input">
+                        <label for="password"><strong>Пароль:</strong></label>
+                        <input type="password" id="password" name="password" value="********" required>
+                        <button type="button" class="password-toggle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="firstname"><strong>Имя:</strong></label>
+                        <input type="text" id="firstname" name="firstname" value="Иван" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="lastname"><strong>Фамилия:</strong></label>
+                        <input type="text" id="lastname" name="lastname" value="Иванов" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="role"><strong>Уровень полномочий:</strong></label>
+                        <select id="role" name="role" disabled>
+                            <option value="student" selected>Студент (Только просмотр)</option>
+                            <option value="teacher">Преподаватель (Бронирование/отмена)</option>
+                            <option value="admin">Администратор (Все права)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Оборудование -->
+            <div id="equipment" class="tab-content">
+                <h3>Мое оборудование</h3>
+                <div class="equipment-list">
+                    <p class="empty-message">Пока ничего нет</p>
+                </div>
+            </div>
+
+            <!-- Избранное -->
+            <div id="favorites" class="tab-content">
+                <h3>Избранное</h3>
+                <div class="favorites-list">
+                    <p class="empty-message">Пока ничего нет</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Бургер-меню в правом верхнем углу -->
+    <button class="menu-toggle" id="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <!-- Модальное окно подтверждения выхода -->
+    <div id="logout-modal" class="modal">
+        <div class="modal-content">
+            <p>Вы уверены, что хотите выйти из аккаунта?</p>
+            <div class="modal-buttons">
+                <button id="confirm-logout">Да, выйти</button>
+                <button id="cancel-logout">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Переключение вкладок
+        document.getElementById('profile-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            switchTab('profile');
+        });
+
+        document.getElementById('equipment-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            switchTab('equipment');
+        });
+
+        document.getElementById('favorites-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            switchTab('favorites');
+        });
+
+        function switchTab(tabId) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabId).classList.add('active');
+            
+            // Обновить активное состояние в меню
+            document.querySelectorAll('.sidebar a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(tabId + '-btn').classList.add('active');
+        }
+
+        // Автоматическое сохранение данных профиля
+        const profileForm = document.getElementById('profile-form');
+        const formInputs = profileForm.querySelectorAll('input');
+        
+        formInputs.forEach(input => {
+            input.addEventListener('change', function() {
+                // Здесь можно добавить код для отправки данных на сервер
+                console.log('Данные изменены:', {
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    firstname: document.getElementById('firstname').value,
+                    lastname: document.getElementById('lastname').value
+                });
+            });
+        });
+
+        // Переключение видимости пароля
+        document.querySelectorAll('.password-toggle').forEach(icon => {
+            icon.addEventListener('click', function() {
+                const input = this.parentElement.querySelector('input');
+                const eyeIcon = this.querySelector('i');
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+                }
+            });
+        });
+
+        // Бургер-меню - переход на главную
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+
+        // Подтверждение выхода
+        const logoutBtn = document.getElementById('logout-btn');
+        const logoutModal = document.getElementById('logout-modal');
+        const confirmLogout = document.getElementById('confirm-logout');
+        const cancelLogout = document.getElementById('cancel-logout');
+
+        logoutBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            logoutModal.style.display = 'flex';
+        });
+
+        confirmLogout.addEventListener('click', function() {
+            window.location.href = 'index.html';
+        });
+
+        cancelLogout.addEventListener('click', function() {
+            logoutModal.style.display = 'none';
+        });
+
+        // Закрытие модального окна при клике вне его
+        window.addEventListener('click', function(event) {
+            if (event.target === logoutModal) {
+                logoutModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
