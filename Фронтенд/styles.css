@@ -951,35 +951,48 @@ select {
 }
 
 .favorite-item {
-  transition: box-shadow 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
-  border-radius: 8px;
-  padding: 12px 5px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
+    width: 100%;
+    transition: box-shadow 0.3s ease, background-color 0.3s ease, transform 0.2s ease;
+    border-radius: 8px;
+    padding: 12px 5px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+    position: relative;
 }
 
 .favorite-item:hover {
-  background-color: #f0f8ff;
-  box-shadow: 0 4px 15px rgba(53, 122, 189, 0.5);
-  transform: translateY(-3px);
+    background-color: #f0f8ff;
+    box-shadow: 0 4px 25px rgba(53, 122, 189, 0.5);
+    transform: translateY(-3px);
 }
 
+.favorite-content {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+}
 
 .favorite-toggle {
     border: none;
     background: none;
-    font-size: 24px;
+    font-size: 19px;
     cursor: pointer;
-    margin-left: auto;
+    padding: 10px;
+    z-index: 2;
     color: gray;
     transition: color 0.3s;
+}
+
+.favorite-toggle:hover {
+    color: rgb(198, 30, 30);
 }
 
 .favorite-toggle.active {
     color: rgb(198, 30, 30);
 }
-
+ 
 /* Стили для страниц категорий */
 .scroll-container {
     width: 100%;
