@@ -94,6 +94,17 @@
         </div>
     </div>
 
+    <!-- Модальное окно подтверждения смены пароля -->
+    <div id="password-change-modal" class="modal">
+        <div class="modal-content">
+            <p>Вы действительно хотите изменить пароль?</p>
+            <div class="modal-buttons">
+                <button id="confirm-password-change">Да, изменить</button>
+                <button id="cancel-password-change">Отмена</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Переключение вкладок
         document.getElementById('profile-btn').addEventListener('click', function(e) {
@@ -182,10 +193,45 @@
             logoutModal.style.display = 'none';
         });
 
-        // Закрытие модального окна при клике вне его
+        // Подтверждение смены пароля
+        const passwordInput = document.getElementById('password');
+        const passwordChangeModal = document.getElementById('password-change-modal');
+        const confirmPasswordChange = document.getElementById('confirm-password-change');
+        const cancelPasswordChange = document.getElementById('cancel-password-change');
+
+        let newPasswordValue = '';
+
+        passwordInput.addEventListener('input', function(e) {
+            newPasswordValue = e.target.value;
+        });
+
+        passwordInput.addEventListener('blur', function() {
+            if (newPasswordValue !== '********' && newPasswordValue !== '') {
+                passwordChangeModal.style.display = 'flex';
+            }
+        });
+
+        confirmPasswordChange.addEventListener('click', function() {
+            // Здесь можно добавить AJAX-запрос для сохранения пароля
+            console.log('Пароль изменен на:', newPasswordValue);
+            passwordChangeModal.style.display = 'none';
+        });
+
+        cancelPasswordChange.addEventListener('click', function() {
+            passwordInput.value = '********';
+            newPasswordValue = '';
+            passwordChangeModal.style.display = 'none';
+        });
+
+        // Закрытие модальных окон при клике вне их
         window.addEventListener('click', function(event) {
             if (event.target === logoutModal) {
                 logoutModal.style.display = 'none';
+            }
+            if (event.target === passwordChangeModal) {
+                passwordInput.value = '********';
+                newPasswordValue = '';
+                passwordChangeModal.style.display = 'none';
             }
         });
     </script>
