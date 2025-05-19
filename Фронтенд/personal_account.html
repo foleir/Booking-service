@@ -62,21 +62,48 @@
 
             <!-- Оборудование -->
             <div id="equipment" class="tab-content">
-                <h3>Мое оборудование</h3>
+                <h3 class="equipment-title">Мое оборудование</h3>
                 <div class="equipment-list">
-                    <p class="empty-message">Пока ничего нет</p>
+                  
+                  <div class="equipment-item" data-url="/equipment/1">
+                    <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                    <div class="equipment-name">Название оборудования + серия</div>
+                    <div class="equipment-status active">
+                      Статус: Активный <span class="status-light green"></span>
+                    </div>
+                  </div> 
+                  
+                  <div class="equipment-item" data-url="/equipment/2">
+                    <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                    <div class="equipment-name">Название оборудования + серия</div>
+                    <div class="equipment-status booked">
+                      Статус: 10.05.2024 - 12.05.2024 <span class="status-light red"></span>
+                    </div>
+                  </div>
+                  
                 </div>
             </div>
+              
 
             <!-- Избранное -->
             <div id="favorites" class="tab-content">
-                <h3>Избранное</h3>
+                <h3 class="favorites-title">Избранное</h3>
                 <div class="favorites-list">
-                    <p class="empty-message">Пока ничего нет</p>
+                  <div class="equipment-item favorite-item" data-id="1" data-url="/equipment/1">
+                    <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                    <div class="equipment-name">Название оборудования + серия</div>
+                    <button class="favorite-toggle active"><i class="fas fa-heart"></i></button>
+                  </div>
+              
+                  <div class="equipment-item favorite-item" data-id="2" data-url="/equipment/2">
+                    <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                    <div class="equipment-name">Название оборудования + серия</div>
+                    <button class="favorite-toggle active"><i class="fas fa-heart"></i></button>
+                  </div>
                 </div>
             </div>
-        </div>
-    </div>
+              
+
 
     <!-- Бургер-меню в правом верхнем углу -->
     <button class="menu-toggle" id="menu-toggle">
@@ -94,13 +121,13 @@
         </div>
     </div>
 
-    <!-- Модальное окно подтверждения смены пароля -->
-    <div id="password-change-modal" class="modal">
+    <!-- Модальное окно подтверждения изменений -->
+    <div id="change-confirm-modal" class="modal">
         <div class="modal-content">
-            <p>Вы действительно хотите изменить пароль?</p>
+            <p id="change-confirm-message">Вы действительно хотите внести изменения?</p>
             <div class="modal-buttons">
-                <button id="confirm-password-change">Да, изменить</button>
-                <button id="cancel-password-change">Отмена</button>
+                <button id="confirm-change">Да, изменить</button>
+                <button id="cancel-change">Отмена</button>
             </div>
         </div>
     </div>
@@ -138,35 +165,102 @@
             document.getElementById(tabId + '-btn').classList.add('active');
         }
 
-        // Автоматическое сохранение данных профиля
+        // Подтверждение изменений для всех полей
         const profileForm = document.getElementById('profile-form');
-        const formInputs = profileForm.querySelectorAll('input');
+        const usernameInput = document.getElementById('username');
+        const firstnameInput = document.getElementById('firstname');
+        const lastnameInput = document.getElementById('lastname');
+        const passwordInput = document.getElementById('password');
         
-        formInputs.forEach(input => {
-            input.addEventListener('change', function() {
-                // Здесь можно добавить код для отправки данных на сервер
-                console.log('Данные изменены:', {
-                    username: document.getElementById('username').value,
-                    password: document.getElementById('password').value,
-                    firstname: document.getElementById('firstname').value,
-                    lastname: document.getElementById('lastname').value
-                });
-            });
+        // Сохраняем исходные значения
+        const originalValues = {
+            username: usernameInput.value,
+            firstname: firstnameInput.value,
+            lastname: lastnameInput.value,
+            password: passwordInput.value
+        };
+        
+        // Модальное окно подтверждения изменений
+        const changeConfirmModal = document.getElementById('change-confirm-modal');
+        const changeConfirmMessage = document.getElementById('change-confirm-message');
+        const confirmChangeBtn = document.getElementById('confirm-change');
+        const cancelChangeBtn = document.getElementById('cancel-change');
+        
+        let currentChangingField = null;
+        let currentOriginalValue = '';
+        let currentFieldName = '';
+        
+        // Функция для проверки изменений
+        function checkChanges(inputElement, fieldName, displayName) {
+            if (inputElement.value !== originalValues[fieldName]) {
+                currentChangingField = inputElement;
+                currentOriginalValue = originalValues[fieldName];
+                currentFieldName = fieldName;
+                
+                changeConfirmMessage.textContent = `Вы действительно хотите изменить ${displayName} с "${originalValues[fieldName]}" на "${inputElement.value}"?`;
+                changeConfirmModal.style.display = 'flex';
+                
+                return true;
+            }
+            return false;
+        }
+        
+        // Обработчики для полей ввода
+        usernameInput.addEventListener('blur', function() {
+            checkChanges(this, 'username', 'логин');
+        });
+        
+        firstnameInput.addEventListener('blur', function() {
+            checkChanges(this, 'firstname', 'имя');
+        });
+        
+        lastnameInput.addEventListener('blur', function() {
+            checkChanges(this, 'lastname', 'фамилию');
+        });
+        
+        passwordInput.addEventListener('blur', function() {
+            if (this.value !== originalValues.password && this.value !== '********') {
+                currentChangingField = this;
+                currentOriginalValue = originalValues.password;
+                currentFieldName = 'password';
+                
+                changeConfirmMessage.textContent = 'Вы действительно хотите изменить пароль?';
+                changeConfirmModal.style.display = 'flex';
+            }
+        });
+        
+        // Подтверждение изменения
+        confirmChangeBtn.addEventListener('click', function() {
+            // Обновляем оригинальное значение
+            originalValues[currentFieldName] = currentChangingField.value;
+            
+            // Здесь можно добавить AJAX-запрос для сохранения данных
+            console.log('Изменения сохранены:', originalValues);
+            
+            changeConfirmModal.style.display = 'none';
+            currentChangingField = null;
+        });
+        
+        // Отмена изменения
+        cancelChangeBtn.addEventListener('click', function() {
+            if (currentChangingField) {
+                currentChangingField.value = currentOriginalValue;
+            }
+            changeConfirmModal.style.display = 'none';
+            currentChangingField = null;
         });
 
         // Переключение видимости пароля
-        document.querySelectorAll('.password-toggle').forEach(icon => {
-            icon.addEventListener('click', function() {
-                const input = this.parentElement.querySelector('input');
-                const eyeIcon = this.querySelector('i');
-                if (input.type === 'password') {
-                    input.type = 'text';
-                    eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
-                } else {
-                    input.type = 'password';
-                    eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
-                }
-            });
+        document.querySelector('.password-toggle').addEventListener('click', function() {
+            const input = this.parentElement.querySelector('input');
+            const eyeIcon = this.querySelector('i');
+            if (input.type === 'password') {
+                input.type = 'text';
+                eyeIcon.classList.replace('fa-eye', 'fa-eye-slash');
+            } else {
+                input.type = 'password';
+                eyeIcon.classList.replace('fa-eye-slash', 'fa-eye');
+            }
         });
 
         // Бургер-меню - переход на главную
@@ -193,47 +287,57 @@
             logoutModal.style.display = 'none';
         });
 
-        // Подтверждение смены пароля
-        const passwordInput = document.getElementById('password');
-        const passwordChangeModal = document.getElementById('password-change-modal');
-        const confirmPasswordChange = document.getElementById('confirm-password-change');
-        const cancelPasswordChange = document.getElementById('cancel-password-change');
-
-        let newPasswordValue = '';
-
-        passwordInput.addEventListener('input', function(e) {
-            newPasswordValue = e.target.value;
-        });
-
-        passwordInput.addEventListener('blur', function() {
-            if (newPasswordValue !== '********' && newPasswordValue !== '') {
-                passwordChangeModal.style.display = 'flex';
-            }
-        });
-
-        confirmPasswordChange.addEventListener('click', function() {
-            // Здесь можно добавить AJAX-запрос для сохранения пароля
-            console.log('Пароль изменен на:', newPasswordValue);
-            passwordChangeModal.style.display = 'none';
-        });
-
-        cancelPasswordChange.addEventListener('click', function() {
-            passwordInput.value = '********';
-            newPasswordValue = '';
-            passwordChangeModal.style.display = 'none';
-        });
-
         // Закрытие модальных окон при клике вне их
         window.addEventListener('click', function(event) {
             if (event.target === logoutModal) {
                 logoutModal.style.display = 'none';
             }
-            if (event.target === passwordChangeModal) {
-                passwordInput.value = '********';
-                newPasswordValue = '';
-                passwordChangeModal.style.display = 'none';
+            if (event.target === changeConfirmModal) {
+                if (currentChangingField) {
+                    currentChangingField.value = currentOriginalValue;
+                }
+                changeConfirmModal.style.display = 'none';
+                currentChangingField = null;
             }
         });
+
+        document.querySelectorAll('.favorite-toggle').forEach(button => {
+            button.addEventListener('click', function () {
+                const item = this.closest('.favorite-item');
+
+            if (this.classList.contains('active')) {
+                // Удалить из DOM (или можно скрыть)
+                item.remove();
+            } else {
+                this.classList.add('active');
+                this.querySelector('i').classList.replace('fa-heart', 'fa-heart');
+            }
+        });
+    });
+
+    document.querySelectorAll('.equipment-item[data-url]').forEach(item => {
+        item.addEventListener('click', () => {
+            const url = item.getAttribute('data-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });  
+
+    document.querySelectorAll('.favorite-item[data-url]').forEach(item => {
+        item.style.cursor = 'pointer'; // чтобы курсор менялся на руку
+
+        item.addEventListener('click', e => {
+            // Если кликнули именно по кнопке сердечка — перехода не делаем
+            if (e.target.closest('.favorite-toggle')) return;
+
+            const url = item.getAttribute('data-url');
+            if (url) {
+                window.location.href = url;
+            }
+        });
+    });
+
     </script>
 </body>
 </html>
