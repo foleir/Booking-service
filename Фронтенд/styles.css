@@ -790,3 +790,93 @@ select {
     margin-top: 30px;
     grid-column: 1 / -1;
 }
+
+/* Модальные окна */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+    font-size: 1.1rem;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.modal-buttons button {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+#confirm-password-change,
+#confirm-logout {
+    background-color: #4CAF50;
+    color: white;
+}
+
+#confirm-password-change:hover,
+#confirm-logout:hover {
+    background-color: #45a049;
+}
+
+#cancel-password-change,
+#cancel-logout {
+    background-color: #f44336;
+    color: white;
+}
+
+#cancel-password-change:hover,
+#cancel-logout:hover {
+    background-color: #d32f2f;
+}
+
+/* Стили для страницы профиля */
+.profile-page .password-input {
+    position: relative;
+}
+
+.profile-page .password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 35px;
+    background: none;
+    border: none;
+    color: #7a7a7a;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.profile-page .password-toggle:hover {
+    color: #007bff;
+}
+
+.profile-page input[type="password"] {
+    padding-right: 35px;
+}
+
