@@ -9,7 +9,7 @@
 </head>
 <body>
     <!-- Кнопка профиля -->
-    <button class="profile-button" onclick="location.href='personal_account.html'">
+    <button class="profile-button" onclick="location.href='registration.html'">
         <img src="https://mobile-comp.com/images/user.png" alt="Личный кабинет">
     </button>
 
@@ -45,24 +45,26 @@
             
             <!-- История бронирования -->
             <section class="history-section">
-                <h2 class="section-title">История бронирования</h2>
-                <div class="history-list">
-                    <div class="history-item">
-                        <div class="item-date"></div>
-                        <div class="item-details">
-                            <span class="item-name"></span>
-                            <span class="item-status returned"></span>
+                <h2 class="equipment-title">История бронирования</h2>
+                <div class="equipment-list">
+                    <!-- Пример записи истории -->
+                    <div class="equipment-item">
+                        <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                        <div class="equipment-name">Название + серия</div>
+                        <div class="equipment-status">
+                            Статус: Активнный <span class="status-light green"></span>
                         </div>
                     </div>
-                    <div class="history-item">
-                        <div class="item-date"></div>
-                        <div class="item-details">
-                            <span class="item-name"></span>
-                            <span class="item-status canceled"></span>
+             
+                    <div class="equipment-item">
+                        <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                        <div class="equipment-name">Название + серия</div>
+                        <div class="equipment-status">
+                            Статус: 10.05.2024 - 12.05.2024 <span class="status-light red"></span>
                         </div>
                     </div>
                 </div>
-            </section>
+            </section> 
         </div>
     </div>
 </body>
