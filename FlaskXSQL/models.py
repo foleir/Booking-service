@@ -19,7 +19,7 @@ class Users(db.Model):
     user_pass = db.Column(db.String(255), nullable=False)
     user_name = db.Column(db.String(255), nullable=False)
     user_surname = db.Column(db.String(255), nullable=False)
-    user_role = db.Column(db.String(5), nullable=False)
+    user_role = db.Column(db.String(20), nullable=False)
     
     reviews = db.relationship('Revievs', backref='user', cascade='all, delete-orphan')
     favorites = db.relationship('Favorites', backref='user', cascade='all, delete-orphan')

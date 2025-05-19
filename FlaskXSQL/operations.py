@@ -164,19 +164,20 @@ def get_equipment_reviews(equipment_id):
 # === Utility functions ===
 def is_teacher(user_id):
     user = Users.query.get(user_id)
-    return user and user.user_role == 'B'
+    return user and user.user_role == 'Преподаватель'
 
 def is_admin(user_id):
     user = Users.query.get(user_id)
-    return user and user.user_role == 'C'
+    return user and user.user_role == 'Администратор'
+
 
 def get_available_rooms(date, start_time, end_time):
-    occupied_rooms = db.session.query(Occupancy.room_id).filter(
+    from sqlalchemy import select
+    occupied_rooms = select(Occupancy.room_id).where(
         Occupancy.dataa == date,
         Occupancy.time_start <= end_time,
         Occupancy.time_end >= start_time
-    ).subquery()
-    
+    )
     return Rooms.query.filter(~Rooms.room_id.in_(occupied_rooms)).all()
 
 def get_equipment_stats():
