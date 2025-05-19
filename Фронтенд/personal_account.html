@@ -89,21 +89,23 @@
             <div id="favorites" class="tab-content">
                 <h3 class="favorites-title">Избранное</h3>
                 <div class="favorites-list">
-                  <div class="equipment-item favorite-item" data-id="1" data-url="/equipment/1">
-                    <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
-                    <div class="equipment-name">Название оборудования + серия</div>
-                    <button class="favorite-toggle active"><i class="fas fa-heart"></i></button>
+                  <div class="favorite-item" data-url="/equipment/1">
+                    <div class="favorite-content">
+                      <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                      <div class="equipment-name">Название оборудования + серия</div>
+                    </div>
+                    <button class="favorite-toggle active" data-id="1"><i class="fas fa-heart"></i></button>
                   </div>
               
-                  <div class="equipment-item favorite-item" data-id="2" data-url="/equipment/2">
-                    <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
-                    <div class="equipment-name">Название оборудования + серия</div>
-                    <button class="favorite-toggle active"><i class="fas fa-heart"></i></button>
+                  <div class="favorite-item" data-url="/equipment/2">
+                    <div class="favorite-content">
+                      <img src="https://via.placeholder.com/60" alt="Оборудование" class="equipment-image">
+                      <div class="equipment-name">Название оборудования + серия</div>
+                    </div>
+                    <button class="favorite-toggle active" data-id="2"><i class="fas fa-heart"></i></button>
                   </div>
                 </div>
-            </div>
-              
-
+            </div> 
 
     <!-- Бургер-меню в правом верхнем углу -->
     <button class="menu-toggle" id="menu-toggle">
@@ -301,28 +303,50 @@
             }
         });
 
-        document.querySelectorAll('.favorite-toggle').forEach(button => {
-            button.addEventListener('click', function () {
+        // Обработчик для перехода по оборудованию в разделе "Мое оборудование"
+        document.querySelectorAll('.equipment-item[data-url]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                // Проверяем, не был ли клик по статусу оборудования
+                if (!e.target.closest('.equipment-status')) {
+                    const url = item.getAttribute('data-url');
+                    if (url) {
+                        window.location.href = url;
+                    }
+                }
+            });
+        });
+
+         // Обработчик для кнопок избранного
+         document.querySelectorAll('.favorite-toggle').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
                 const item = this.closest('.favorite-item');
-
-            if (this.classList.contains('active')) {
-                // Удалить из DOM (или можно скрыть)
-                item.remove();
-            } else {
-                this.classList.add('active');
-                this.querySelector('i').classList.replace('fa-heart', 'fa-heart');
-            }
+                if (this.classList.contains('active')) {
+                    this.classList.remove('active');
+                    this.querySelector('i').style.color = 'gray';
+                    
+                    const equipmentId = this.getAttribute('data-id');
+                    console.log('Удалено из избранного:', equipmentId);
+                    
+                    setTimeout(() => {
+                        item.remove();
+                    }, 300);
+                }
+            });
         });
-    });
 
-    document.querySelectorAll('.equipment-item[data-url]').forEach(item => {
-        item.addEventListener('click', () => {
-            const url = item.getAttribute('data-url');
-            if (url) {
-                window.location.href = url;
-            }
+        // Обработчик для перехода по оборудованию в избранном
+        document.querySelectorAll('.favorite-item[data-url]').forEach(item => {
+            item.addEventListener('click', function(e) {
+                if (!e.target.closest('.favorite-toggle')) {
+                    const url = item.getAttribute('data-url');
+                    if (url) {
+                        window.location.href = url;
+                    }
+                }
+            });
         });
-    });  
 
     document.querySelectorAll('.favorite-item[data-url]').forEach(item => {
         item.style.cursor = 'pointer'; // чтобы курсор менялся на руку
