@@ -63,6 +63,12 @@ def delete_equipment(equipment_id):
         return True
     return False
 
+# Для фильтрации оборудования
+def get_equipment_by_category(category):
+    return Equipment.query.filter(
+        Equipment.object_name.ilike(f'%{category}%')
+    ).all()
+
 # === Rooms operations ===
 def create_room(name, size):
     room = Rooms(
