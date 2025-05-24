@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ equipment.object_name }} - Детали</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <div class="equipment-detail">
+        <h1>{{ equipment.object_name }} {{ equipment.object_series }}</h1>
+        
+        <div class="equipment-image">
+            <img src="{{ url_for('static', filename='images/equipment/' + equipment.object_photo) if equipment.object_photo else 'https://via.placeholder.com/300' }}" 
+                 alt="{{ equipment.object_name }}">
+        </div>
+        
+        <div class="equipment-info">
+            <p><strong>Тип:</strong> {{ equipment.obkect_gabaritType }}</p>
+            <p><strong>Статус:</strong> 
+                <span class="{{ 'status-available' if equipment.is_available else 'status-booked' }}">
+                    {{ 'Доступно' if equipment.is_available else 'Занято' }}
+                </span>
+            </p>
+            
+            {% if equipment.object_description %}
+            <div class="description">
+                <h3>Описание:</h3>
+                <p>{{ equipment.object_description }}</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <div class="booking-section">
+            <h2>Бронирование</h2>
+            <!-- Форма бронирования -->
+        </div>
+        
+        <div class="reviews-section">
+            <h2>Отзывы</h2>
+            <!-- Список отзывов -->
+        </div>
+    </div>
+</body>
+</html>

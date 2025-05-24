@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Компьютеры и серверы</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="scroll-container">
+        <div class="container">
+            <!-- Кнопка профиля -->
+            <button class="profile-button" onclick="location.href='{{ url_for("personal_account") }}'">
+                <img src="https://mobile-comp.com/images/user.png" alt="Личный кабинет">
+            </button>
+
+            <!-- Основной контент -->
+            <div class="content">
+                <h1 class="header-title">Компьютеры и серверы</h1>
+                
+                <!-- Фильтры -->
+                <div class="filters">
+                    <select class="filter-select" id="series-filter">
+                        <option value="">Все серии</option>
+                        {% for series in equipment_series %}
+                        <option value="{{ series }}">{{ series }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <select class="filter-select" id="location-filter">
+                        <option value="">Все локации</option>
+                        {% for location in equipment_locations %}
+                        <option value="{{ location }}">{{ location }}</option>
+                        {% endfor %}
+                    </select>
+                    
+                    <select class="filter-select" id="availability-filter">
+                        <option value="">Любая занятость</option>
+                        <option value="available">Доступно</option>
+                        <option value="booked">Занято</option>
+                    </select>
+                </div>
+
+                <!-- Список оборудования -->
+                <div class="equipment-list">
+                    {% for equipment in equipments %}
+                    <div class="equipment-item" 
+                        data-series="{{ equipment.object_series }}"
+                        data-location="{{ equipment.room.room_name if equipment.room else 'Не указано' }}"
+                        data-available="{{ 'true' if equipment.is_available else 'false' }}"
+                        onclick="window.location.href='{{ url_for('equipment_details', equipment_id=equipment.object_id) }}'">
+                        <div class="item-number">{{ loop.index }}</div>
+                       <img src="{{ url_for('static', filename=equipment.object_photo) if equipment.object_photo else 'https://via.placeholder.com/900x400?text=Фото+оборудования' }}" 
+                            alt="{{ equipment.object_name }}" class="equipment-image">
+                        <div class="equipment-name">{{ equipment.object_name }} {{ equipment.object_series }}</div>
+                        <div class="equipment-status {{ 'available' if equipment.is_available else 'booked' }}">
+                            {{ 'Доступно' if equipment.is_available else 'Занято' }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const filters = {
+                series: document.getElementById('series-filter'),
+                location: document.getElementById('location-filter'),
+                availability: document.getElementById('availability-filter')
+            };
+
+            function applyFilters() {
+                const selectedSeries = filters.series.value;
+                const selectedLocation = filters.location.value;
+                const selectedAvailability = filters.availability.value;
+
+                document.querySelectorAll('.equipment-item').forEach(item => {
+                    const seriesMatch = !selectedSeries || item.dataset.series === selectedSeries;
+                    const locationMatch = !selectedLocation || item.dataset.location === selectedLocation;
+                    const availabilityMatch = !selectedAvailability || 
+                                        (selectedAvailability === 'available' && item.dataset.available === 'true') ||
+                                        (selectedAvailability === 'booked' && item.dataset.available === 'false');
+
+                    item.style.display = (seriesMatch && locationMatch && availabilityMatch) ? 'block' : 'none';
+                });
+            }
+
+            Object.values(filters).forEach(filter => {
+                filter.addEventListener('change', applyFilters);
+            });
+        });
+    </script>
+</body>
+</html>

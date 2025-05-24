@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Категории оборудования</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="scroll-container">
+        <div class="container">
+            <!-- Кнопка профиля -->
+            <button class="profile-button" onclick="location.href='{{ url_for("personal_account") }}'">
+                <img src="https://mobile-comp.com/images/user.png" alt="Личный кабинет">
+            </button>
+
+            <!-- Основной контент -->
+            <div class="content">
+                <h1 class="header-title">Выберите категорию оборудования</h1>
+                
+                <div class="buttons-container">
+                    <button class="category-button" onclick="window.location.href='{{ url_for("computers") }}'">Компьютеры, серверы</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("input_devices") }}'">Устройства ввода</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("output_devices") }}'">Устройства вывода</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("storage_devices") }}'">Устройства хранения</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("network_equipment") }}'">Сетевое оборудование</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("media") }}'">Носители информации</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("printers_scanners") }}'">Принтеры, сканеры</button>
+                    <button class="category-button" onclick="window.location.href='{{ url_for("routers_modems") }}'">Роутеры, модемы</button>
+                    
+                    <!-- Дополнительные элементы -->
+                    <div class="additional-content">
+                        <h2>Дополнительное оборудование</h2>
+                        <button class="category-button" onclick="window.location.href='{{ url_for("monitors") }}'">Мониторы</button>
+                        <button class="category-button" onclick="window.location.href='{{ url_for("accessories") }}'">Аксессуары</button>
+                        <button class="category-button" onclick="window.location.href='{{ url_for("cables_adapters") }}'">Кабели и переходники</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+

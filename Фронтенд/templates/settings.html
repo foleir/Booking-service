@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Бронирование {{ equipment.object_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <form class="booking-form">
+            <h2 class="form-title-btn">Бронирование {{ equipment.object_name }}</h2>
+
+            <div class="form-group">
+                <label for="room">Номер аудитории</label>
+                <select id="room" name="room" required>
+                    <option value="">Выберите аудиторию</option>
+                    {% for room in rooms %}
+                    <option value="{{ room.room_id }}">{{ room.room_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="date-start">Дата начала</label>
+                <input type="date" id="date-start" name="date-start" required />
+            </div>
+ 
+            <div class="form-group">
+                <label for="time-start">Время начала</label>
+                <input type="time" id="time-start" name="time-start" required />
+            </div>
+
+            <div class="form-group">
+                <label for="time-end">Время окончания</label>
+                <input type="time" id="time-end" name="time-end" required />
+            </div>
+            <div class="form-group">
+                <button type="submit" class="submit-btn">Забронировать</button>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        document.querySelector('.booking-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = {
+                equipment_id: {{ equipment.object_id }},
+                room_id: document.getElementById('room').value,
+                date: document.getElementById('date-start').value,
+                start_time: document.getElementById('time-start').value,
+                end_time: document.getElementById('time-end').value
+            };
+            
+            fetch('{{ url_for("book_equipment") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.status === 'success') {
+                    alert('Бронирование успешно создано!');
+                    window.location.href = '{{ url_for("personal_account") }}';
+                } else {
+                    alert('Ошибка: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Произошла ошибка при бронировании');
+            });
+        });
+    </script>
+</body>
+</html>

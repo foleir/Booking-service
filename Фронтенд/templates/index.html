@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная страница</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Кнопка профиля с проверкой авторизации -->
+    <button class="profile-button" onclick="window.location.href='{{ url_for('personal_account') }}'">
+        <img src="https://mobile-comp.com/images/user.png" alt="Личный кабинет">
+    </button>
+
+    <!-- Основной контент -->
+    <div class="page-content">
+        <div class="main-container">
+            <h1 class="header-title">Сервис бронирования оборудования <b>"СНЯК"</b></h1>
+            <button class="main-button" onclick="location.href='{{ url_for('categories') }}'">Забронировать оборудование</button>
+            
+            <!-- Dashboard занятости -->
+            <div class="dashboard">
+                <h2>Статистика бронирований на ближайшие 7 дней</h2>
+                <div class="chart-container">
+                    
+                    <div class="chart-bars" id="chartBars">
+                        {% if not booking_stats %}
+                            <div class="loading">Загрузка данных...</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="chart-table">
+                    <table class="stats-table">
+                        <thead>
+                            <tr>
+                                <th>Дата</th>
+                                <th>Занятость (%)</th>
+                                <th>Самая популярная категория</th>
+                            </tr>
+                        </thead>
+                        <tbody id="statsTableBody">
+                            <!-- Данные будут заполнены через JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- История бронирования -->
+            <section class="history-section">
+                <h2 class="equipment-title">История бронирования</h2>
+                <div class="equipment-list">
+                    {% if bookings %}
+                        {% for booking in bookings %}
+                        <div class="equipment-item" onclick="window.location.href='{{ url_for('equipment_details', equipment_id=booking.object_id) }}'">
+                            <img src="{{ url_for('static', filename=booking.equipment.object_photo.replace('static/', '')) if booking.equipment.object_photo else 'https://via.placeholder.com/150?text=Оборудование' }}" 
+                                alt="{{ booking.equipment.object_name }}" class="equipment-image">
+                            <div class="equipment-name">{{ booking.equipment.object_name }} {{ booking.equipment.object_series }}</div>
+                            <div class="equipment-status {% if booking.data_book >= current_date %}active{% else %}booked{% endif %}">
+                                Статус: {% if booking.data_book >= current_date %} {{ booking.data_book.strftime('%d.%m.%Y') }}{% else %}{{ booking.data_book.strftime('%d.%m.%Y') }}{% endif %}
+                                <span class="status-light {% if booking.data_book >= current_date %}green{% else %}red{% endif %}"></span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p class="no-bookings">У вас нет активных бронирований</p>
+                    {% endif %}
+                </div>
+            </section> 
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Получаем данные из Flask контекста
+            const bookingStats = {{ booking_stats|tojson|safe }};
+            const equipmentStats = {{ equipment_stats|tojson|safe }};
+            
+            console.log("Booking stats from server:", bookingStats);
+            console.log("Equipment stats from server:", equipmentStats);
+            
+            // Подготавливаем данные для графика
+            const chartData = prepareChartData(bookingStats, equipmentStats);
+            console.log("Prepared chart data:", chartData);
+            
+            // Рендерим график
+            renderChart(chartData);
+            
+            function prepareChartData(bookingStats, equipmentStats) {
+                const result = [];
+                
+                // Проходим по всем дням (они уже должны быть в правильном порядке)
+                for (let i = 0; i < bookingStats.length; i++) {
+                    const bookingItem = bookingStats[i];
+                    const equipmentItem = equipmentStats[i];
+                    
+                    const date = new Date(bookingItem.date);
+                    const formattedDate = formatDate(date);
+                    
+                    // Рассчитываем процент занятости
+                    const percentage = Math.round(
+                        (equipmentItem.booked_equipment / equipmentItem.total_equipment) * 100
+                    );
+                    
+                    result.push({
+                        date: bookingItem.date,
+                        count: bookingItem.count,
+                        formatted_date: formattedDate,
+                        percentage: percentage,
+                        popular_category: equipmentItem.popular_category
+                    });
+                }
+                
+                return result;
+            }
+            
+            function formatDate(date) {
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                return `${day}.${month}`;
+            }
+            
+            function renderChart(data) {
+                const chartBars = document.getElementById('chartBars');
+                const tableBody = document.getElementById('statsTableBody');
+                
+                chartBars.innerHTML = '';
+                tableBody.innerHTML = '';
+                
+                data.forEach(item => {
+                    // Рендерим график
+                    const barHtml = `
+                    <div class="chart-bar-container">
+                        <div class="chart-bar" style="height: ${item.percentage}%;" 
+                            title="Дата: ${item.date}\nЗанятость: ${item.percentage}%\nПопулярная категория: ${item.popular_category}">
+                        </div>
+                        <div class="chart-bar-value">${item.percentage}%</div>
+                        <div class="chart-label">${item.formatted_date}</div>
+                    </div>
+                    `;
+                    chartBars.insertAdjacentHTML('beforeend', barHtml);
+                    
+                    // Рендерим таблицу
+                    const rowHtml = `
+                    <tr>
+                        <td>${item.formatted_date}</td>
+                        <td>${item.percentage}%</td>
+                        <td>${item.popular_category}</td>
+                    </tr>
+                    `;
+                    tableBody.insertAdjacentHTML('beforeend', rowHtml);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

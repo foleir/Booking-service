@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Личный кабинет</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="profile-page">
+    <div class="dashboard-container">
+        <!-- Левое меню -->
+        <div class="sidebar">
+            <h2>Личный кабинет</h2>
+            <ul>
+                <li><a href="#" id="profile-btn" class="active">Профиль</a></li>
+                <li><a href="#" id="equipment-btn">Мое оборудование</a></li>
+                <li><a href="#" id="favorites-btn">Избранное</a></li>
+            </ul>
+            <a href="{{ url_for('logout') }}" class="logout-btn" id="logout-btn">Выход</a>
+        </div>
+
+        <!-- Основное содержимое -->
+        <div class="content">
+            <!-- Профиль -->
+            <div id="profile" class="tab-content active">
+                <h3 class="profile-title">Редактирование профиля</h3>
+                <form id="profile-form">
+                    <div class="form-group">
+                        <label for="username"><strong>Логин:</strong></label>
+                        <input type="text" id="username" name="username" value="{{ user.user_login }}" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="firstname"><strong>Имя:</strong></label>
+                        <input type="text" id="firstname" name="firstname" value="{{ user.user_name }}" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="lastname"><strong>Фамилия:</strong></label>
+                        <input type="text" id="lastname" name="lastname" value="{{ user.user_surname }}" required>
+                    </div>
+                
+                    <div class="form-group">
+                        <label for="role"><strong>Уровень полномочий:</strong></label>
+                        <select id="role" name="role" disabled>
+                            <option value="student" {% if user.user_role == 'Студент' %}selected{% endif %}>Студент (Только просмотр)</option>
+                            <option value="teacher" {% if user.user_role == 'Преподаватель' %}selected{% endif %}>Преподаватель (Бронирование/отмена)</option>
+                            <option value="admin" {% if user.user_role == 'Администратор' %}selected{% endif %}>Администратор (Все права)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Оборудование -->
+            <div id="equipment" class="tab-content">
+                <h3 class="equipment-title">Мое оборудование</h3>
+                <div class="equipment-list">
+                    {% for booking in bookings %}
+                    <div class="equipment-item" data-url="{{ url_for('equipment_details', equipment_id=booking.object_id) }}">
+                        <img src="{{ url_for('static', filename=booking.equipment.object_photo) if booking.equipment.object_photo else 'https://via.placeholder.com/60?text=Фото+оборудования' }}" alt="Оборудование" class="equipment-image">
+                        <div class="equipment-name">{{ booking.equipment.object_name }} {{ booking.equipment.object_series }}</div>
+                        <div class="equipment-status-container">
+                            <div class="equipment-status-wrapper">
+                                <div class="equipment-status {% if booking.data_book >= current_date %}active{% else %}booked{% endif %}">
+                                    Статус: {% if booking.data_book >= current_date %}{{ booking.data_book.strftime('%d.%m.%Y') }}{% else %}{{ booking.data_book.strftime('%d.%m.%Y') }}{% endif %}
+                                    <span class="status-light {% if booking.data_book >= current_date %}green{% else %}red{% endif %}"></span>
+                                </div>
+                                {% if booking.data_book >= current_date %}
+                                <button class="cancel-booking-btn" data-booking-id="{{ booking.boking_id }}" title="Отменить бронирование">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Избранное -->
+            <div id="favorites" class="tab-content">
+                <h3 class="favorites-title">Избранное</h3>
+                <div class="favorites-list">
+                    {% for favorite in favorites %}
+                    <div class="favorite-item">
+                        <a href="{{ url_for('equipment_details', equipment_id=favorite.object_id) }}" class="favorite-content">
+                            <img src="{{ url_for('static', filename=favorite.object_photo) if favorite.object_photo else url_for('static', filename='images/equipment/default-equipment.png') }}" 
+                                alt="{{ favorite.object_name }}" 
+                                class="favorite-image">
+                            <div class="favorite-info">
+                                <div class="favorite-name">{{ favorite.object_name }}</div>
+                                <div class="favorite-series">{{ favorite.object_series }}</div>
+                            </div>
+                        </a>
+                        <button class="favorite-toggle active" data-id="{{ favorite.object_id }}">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                    </div>
+                    {% else %}
+                    <div class="no-favorites">
+                        <p>У вас пока нет избранного оборудования</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Бургер-меню -->
+        <button class="menu-toggle" id="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <!-- Модальные окна -->
+        <div id="logout-modal" class="modal">
+            <div class="modal-content">
+                <p>Вы уверены, что хотите выйти из аккаунта?</p>
+                <div class="modal-buttons">
+                    <button id="confirm-logout">Да, выйти</button>
+                    <button id="cancel-logout">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="change-confirm-modal" class="modal">
+            <div class="modal-content">
+                <p id="change-confirm-message">Вы действительно хотите внести изменения?</p>
+                <div class="modal-buttons">
+                    <button id="confirm-change">Да, изменить</button>
+                    <button id="cancel-change">Отмена</button>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Инициализация с реальными данными пользователя
+            const originalValues = {
+                username: "{{ user.user_login }}",
+                firstname: "{{ user.user_name }}",
+                lastname: "{{ user.user_surname }}"
+            };
+
+            // Переключение вкладок
+            document.getElementById('profile-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                switchTab('profile');
+            });
+
+            document.getElementById('equipment-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                switchTab('equipment');
+            });
+
+            document.getElementById('favorites-btn').addEventListener('click', function(e) {
+                e.preventDefault();
+                switchTab('favorites');
+            });
+
+            function switchTab(tabId) {
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.getElementById(tabId).classList.add('active');
+                
+                document.querySelectorAll('.sidebar a').forEach(link => {
+                    link.classList.remove('active');
+                });
+                document.getElementById(tabId + '-btn').classList.add('active');
+            }
+
+            // Обработчики полей формы
+            const profileForm = document.getElementById('profile-form');
+            const usernameInput = document.getElementById('username');
+            const firstnameInput = document.getElementById('firstname');
+            const lastnameInput = document.getElementById('lastname');
+            
+            const changeConfirmModal = document.getElementById('change-confirm-modal');
+            const changeConfirmMessage = document.getElementById('change-confirm-message');
+            const confirmChangeBtn = document.getElementById('confirm-change');
+            const cancelChangeBtn = document.getElementById('cancel-change');
+            
+            let currentChangingField = null;
+            let currentOriginalValue = '';
+            let currentFieldName = '';
+            
+            function checkChanges(inputElement, fieldName, displayName) {
+                if (inputElement.value !== originalValues[fieldName]) {
+                    currentChangingField = inputElement;
+                    currentOriginalValue = originalValues[fieldName];
+                    currentFieldName = fieldName;
+                    
+                    changeConfirmMessage.textContent = `Вы действительно хотите изменить ${displayName} с "${originalValues[fieldName]}" на "${inputElement.value}"?`;
+                    changeConfirmModal.style.display = 'flex';
+                    
+                    return true;
+                }
+                return false;
+            }
+            
+            usernameInput.addEventListener('blur', function() {
+                checkChanges(this, 'username', 'логин');
+            });
+            
+            firstnameInput.addEventListener('blur', function() {
+                checkChanges(this, 'firstname', 'имя');
+            });
+            
+            lastnameInput.addEventListener('blur', function() {
+                checkChanges(this, 'lastname', 'фамилию');
+            });
+            
+            confirmChangeBtn.addEventListener('click', function() {
+                originalValues[currentFieldName] = currentChangingField.value;
+                
+                fetch("{{ url_for('personal_account') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput.value,
+                        firstname: firstnameInput.value,
+                        lastname: lastnameInput.value
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if(data.status === 'success') {
+                        alert('Профиль успешно обновлен');
+                    } else {
+                        alert('Ошибка: ' + data.message);
+                        currentChangingField.value = currentOriginalValue;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка соединения');
+                    currentChangingField.value = currentOriginalValue;
+                });
+                
+                changeConfirmModal.style.display = 'none';
+                currentChangingField = null;
+            });
+            
+            cancelChangeBtn.addEventListener('click', function() {
+                if (currentChangingField) {
+                    currentChangingField.value = currentOriginalValue;
+                }
+                changeConfirmModal.style.display = 'none';
+                currentChangingField = null;
+            });
+
+            // Бургер-меню
+            document.getElementById('menu-toggle').addEventListener('click', function() {
+                // Перезагружаем страницу, чтобы гарантировать правильную инициализацию
+                window.location.href = "{{ url_for('index') }}?_=" + new Date().getTime();
+            });
+
+            // Подтверждение выхода
+            const logoutBtn = document.getElementById('logout-btn');
+            const logoutModal = document.getElementById('logout-modal');
+            const confirmLogout = document.getElementById('confirm-logout');
+            const cancelLogout = document.getElementById('cancel-logout');
+
+            logoutBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                logoutModal.style.display = 'flex';
+            });
+
+            confirmLogout.addEventListener('click', function() {
+                window.location.href = "{{ url_for('logout') }}";
+            });
+
+            cancelLogout.addEventListener('click', function() {
+                logoutModal.style.display = 'none';
+            });
+
+            // Обработчики для оборудования и избранного
+            document.querySelectorAll('.equipment-item[data-url]').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    if (!e.target.closest('.equipment-status') && !e.target.closest('.cancel-booking-btn')) {
+                        window.location.href = this.getAttribute('data-url');
+                    }
+                });
+            });
+
+            // Обработчик кнопки отмены бронирования
+            document.querySelectorAll('.cancel-booking-btn').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const bookingId = this.getAttribute('data-booking-id');
+                    
+                    if (confirm('Вы уверены, что хотите отменить бронирование?')) {
+                        fetch("{{ url_for('cancel_booking') }}", {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                booking_id: bookingId
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.status === 'success') {
+                                // Удаляем карточку из списка
+                                this.closest('.equipment-item').remove();
+                                alert('Бронирование успешно отменено');
+                            } else {
+                                alert('Ошибка: ' + data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('Ошибка соединения');
+                        });
+                    }
+                });
+            });
+
+            document.querySelectorAll('.favorite-toggle').forEach(button => {
+                button.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const item = this.closest('.favorite-item');
+                    if (this.classList.contains('active')) {
+                        fetch("{{ url_for('manage_favorites') }}", {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({
+                                equipment_id: this.getAttribute('data-id'),
+                                action: 'remove'
+                            })
+                        })
+                        .then(response => response.json())
+                        .then(data => {
+                            if(data.status === 'success') {
+                                item.remove();
+                            } else {
+                                alert('Ошибка: ' + data.message);
+                            }
+                        });
+                    }
+                });
+            });
+
+            // Закрытие модальных окон
+            window.addEventListener('click', function(event) {
+                if (event.target === logoutModal) logoutModal.style.display = 'none';
+                if (event.target === changeConfirmModal) {
+                    if (currentChangingField) currentChangingField.value = currentOriginalValue;
+                    changeConfirmModal.style.display = 'none';
+                    currentChangingField = null;
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ equipment.object_name }} | Детали оборудования</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+</head>
+<body class="object-page">
+    <!-- Бургер-меню справа -->
+    <button class="menu-toggle right" id="menu-toggle">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div class="product-container">
+        <img src="{{ url_for('static', filename=equipment.object_photo) if equipment.object_photo else url_for('static', filename='images/objects/default.png') }}" 
+             alt="{{ equipment.object_name }}" 
+             class="product-image">
+
+        <div class="product-details">
+            <div class="product-title-wrapper">
+                <h1 class="product-title">{{ equipment.object_name }}</h1>
+                <button class="favorite-btn" id="favoriteBtn" aria-label="Добавить в избранное">
+                    <i class="far fa-heart"></i>
+                </button>
+            </div>
+
+            <div class="product-meta">
+                <div class="product-series">
+                    <span class="meta-label">Серия:</span>
+                    <span class="meta-value">{{ equipment.object_series }}</span>
+                </div>
+                <div class="product-type">
+                    <span class="meta-label">Тип:</span>
+                    <span class="meta-value">{{ equipment.object_gabaritType }}</span>
+                </div>
+            </div>
+
+            <div class="product-description">
+                <h3 class="section-title">Описание</h3>
+                <p>{{ equipment.object_description or 'Описание отсутствует' }}</p>
+            </div>
+
+            <div class="product-status">
+                <h3 class="section-title">Статус</h3>
+                {% if is_available %}
+                    <div class="status-available">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Оборудование доступно для бронирования</span>
+                    </div>
+                {% else %}
+                    <div class="status-unavailable">
+                        <i class="fas fa-times-circle"></i>
+                        <div class="unavailable-details">
+                            <span>Оборудование занято</span>
+                            {% if current_booking %}
+                                <div class="booking-info">
+                                    <div>До: {{ current_booking.time_end.strftime('%H:%M %d.%m.%Y') }}</div>
+                                    {% if current_booking.user_id == session.get('user_id') %}
+                                        <div class="your-booking">(Это ваше бронирование)</div>
+                                    {% else %}
+                                        <div>Занято пользователем: {{ get_user_by_id(current_booking.user_id).user_name }}</div>
+                                    {% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="product-buttons">
+                <a href="{{ url_for('booking_settings', equipment_id=equipment.object_id) }}" 
+                   class="book-button {% if not is_available %}disabled{% endif %}">
+                    Забронировать
+                </a>
+                <a href="{{ url_for('review', equipment_id=equipment.object_id) }}" 
+                   class="review-button">
+                    Оставить отзыв
+                </a>
+            </div>
+
+            <div class="reviews-section">
+                <h3 class="section-title">Отзывы</h3>
+                
+                {% if reviews_with_users %}
+                    <div class="reviews-list">
+                        {% for item in reviews_with_users %}
+                            <div class="review-item">
+                                <div class="review-header">
+                                    <div class="review-author">
+                                        <i class="fas fa-user-circle"></i>
+                                        {{ item.user.user_name }} {{ item.user.user_surname }}
+                                    </div>
+                                    <div class="review-date">
+                                        {% if item.review.created_at %}
+                                            {{ item.review.created_at.strftime('%d.%m.%Y %H:%M') }}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                <div class="review-text">
+                                    {{ item.review.reviev_text }}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-reviews">
+                        <i class="far fa-comment-dots"></i>
+                        <p>Пока нет отзывов об этом оборудовании. Будьте первым!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Бургер-меню - переход на главную
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            window.location.href = "{{ url_for('index') }}";
+        });
+
+        // Избранное
+        const favoriteBtn = document.getElementById('favoriteBtn');
+        const heartIcon = favoriteBtn.querySelector('i');
+        const equipmentId = {{ equipment.object_id }};
+        const userId = {{ session.get('user_id', 0) }};
+
+        // Проверяем начальное состояние избранного
+        checkFavoriteStatus();
+
+        // Обработчик клика по кнопке избранного
+        favoriteBtn.addEventListener('click', function() {
+            if (userId === 0) {
+                alert('Для добавления в избранное необходимо авторизоваться');
+                window.location.href = "{{ url_for('login') }}";
+                return;
+            }
+
+            const isFavorite = favoriteBtn.classList.contains('active');
+            const action = isFavorite ? 'remove' : 'add';
+            
+            fetch("{{ url_for('manage_favorites') }}", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    equipment_id: equipmentId,
+                    action: action
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    updateButtonState(!isFavorite);
+                    favoriteBtn.classList.add('animate');
+                    setTimeout(() => {
+                        favoriteBtn.classList.remove('animate');
+                    }, 700);
+                } else {
+                    alert('Ошибка: ' + (data.message || 'Неизвестная ошибка'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Ошибка соединения');
+            });
+        });
+
+        function checkFavoriteStatus() {
+            if (userId === 0) return;
+            
+            fetch(`/api/check-favorite?user_id=${userId}&equipment_id=${equipmentId}`)
+            .then(response => response.json())
+            .then(data => {
+                updateButtonState(data.is_favorite);
+            });
+        }
+
+        function updateButtonState(isFavorite) {
+            favoriteBtn.classList.toggle('active', isFavorite);
+            heartIcon.classList.toggle('far', !isFavorite);
+            heartIcon.classList.toggle('fas', isFavorite);
+        }
+    });
+    </script>
+</body>
+</html>
